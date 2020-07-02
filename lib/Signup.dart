@@ -1,24 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:iotflutterapp/Signup.dart';
 
-void main() {
-  runApp(MaterialApp(
-    home: LoginPage(),
-    routes: <String, WidgetBuilder>{
-      '/SignUpPage': (context) => SignUpPage(),
-      '/LoginPage': (context) => LoginPage(),
-    },
-  ));
-}
-
-class LoginPage extends StatefulWidget {
-  @override
-  _State createState() => _State();
-}
-
-class _State extends State<LoginPage> {
+class SignUpPage extends StatelessWidget {
   TextEditingController nameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController numberController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -47,41 +33,60 @@ class _State extends State<LoginPage> {
                       'اطلاعات خود را وارد کنید',
                       style: TextStyle(fontSize: 20),
                     )),
-                Container(
-                  padding: EdgeInsets.all(10),
-                  child: TextField(
-                    controller: nameController,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'نام کاربری',
+                Expanded(
+                  child: Container(
+                    padding: EdgeInsets.all(10),
+                    child: TextField(
+                      controller: nameController,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'نام کاربری',
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Container(
+                    padding: EdgeInsets.fromLTRB(10, 0, 10, 10),
+                    child: TextField(
+                      obscureText: true,
+                      controller: passwordController,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'رمز عبور',
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Container(
+                    padding: EdgeInsets.fromLTRB(10, 0, 10, 10),
+                    child: TextField(
+                      controller: emailController,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'ایمیل',
+                      ),
                     ),
                   ),
                 ),
                 Container(
-                  padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
+                  padding: EdgeInsets.fromLTRB(10, 0, 10, 10),
                   child: TextField(
-                    obscureText: true,
-                    controller: passwordController,
+                    controller: numberController,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
-                      labelText: 'رمز عبور',
+                      labelText: 'شماره تلفن',
                     ),
                   ),
-                ),
-                FlatButton(
-                  onPressed: () {
-                    //forgot password screen
-                  },
-                  textColor: Colors.blue,
-                  child: Text('رمز عبور را فراموش کرده ام'),
                 ),
                 Container(
                     height: 50,
-                    padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                    padding: EdgeInsets.fromLTRB(10, 0, 10, 10),
                     child: RaisedButton(
                       textColor: Colors.white,
                       color: Colors.blue,
-                      child: Text('ورود'),
+                      child: Text('ثبت نام'),
                       onPressed: () {
                         print(nameController.text);
                         print(passwordController.text);
@@ -93,15 +98,15 @@ class _State extends State<LoginPage> {
                     FlatButton(
                       textColor: Colors.blue,
                       child: Text(
-                        'ثبت نام',
+                        'ورود',
                         style: TextStyle(fontSize: 20),
                       ),
                       onPressed: () {
-                        //signup screen
-                        Navigator.pushNamed(context, '/SignUpPage');
+                        //Login screen
+                        Navigator.pushNamed(context, '/LoginPage');
                       },
                     ),
-                    Text('حساب کاربری ندارید؟'),
+                    Text('از قبل حساب کاربری دارید؟'),
                   ],
                   mainAxisAlignment: MainAxisAlignment.center,
                 ))
