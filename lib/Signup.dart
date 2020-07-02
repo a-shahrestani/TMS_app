@@ -1,10 +1,43 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class SignUpPage extends StatelessWidget {
   TextEditingController nameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController numberController = TextEditingController();
+  final String signupAPI = '';
+
+  Future<Map<String, dynamic>> sigup(
+      String username, String password, String email, String number) async {
+    final Map<String, dynamic> authData = {
+      "username": username,
+      "password": password,
+      "email": email,
+      "number": number
+    };
+
+    final http.Response response = await http.post(signupAPI,
+        body: json.encode(authData),
+        headers: {"Content-Type": "application/json"});
+
+    final Map<String, dynamic> authResponseData = json.decode(response.body);
+
+    if (response.statusCode == 400) {
+      if (authResponseData.containsKey("error")) {
+        if (authResponseData["error"] == "invalid_credentials") {
+          return {'success': false, 'message': 'Invalid User!'};
+        }
+      }
+    }
+
+    if (response.statusCode == 200) {
+      return {'success': true, 'message': 'Successfuly login!'};
+    }
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,40 +66,34 @@ class SignUpPage extends StatelessWidget {
                       'اطلاعات خود را وارد کنید',
                       style: TextStyle(fontSize: 20),
                     )),
-                Expanded(
-                  child: Container(
-                    padding: EdgeInsets.all(10),
-                    child: TextField(
-                      controller: nameController,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'نام کاربری',
-                      ),
+                Container(
+                  padding: EdgeInsets.all(10),
+                  child: TextField(
+                    controller: nameController,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'نام کاربری',
                     ),
                   ),
                 ),
-                Expanded(
-                  child: Container(
-                    padding: EdgeInsets.fromLTRB(10, 0, 10, 10),
-                    child: TextField(
-                      obscureText: true,
-                      controller: passwordController,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'رمز عبور',
-                      ),
+                Container(
+                  padding: EdgeInsets.fromLTRB(10, 0, 10, 10),
+                  child: TextField(
+                    obscureText: true,
+                    controller: passwordController,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'رمز عبور',
                     ),
                   ),
                 ),
-                Expanded(
-                  child: Container(
-                    padding: EdgeInsets.fromLTRB(10, 0, 10, 10),
-                    child: TextField(
-                      controller: emailController,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'ایمیل',
-                      ),
+                Container(
+                  padding: EdgeInsets.fromLTRB(10, 0, 10, 10),
+                  child: TextField(
+                    controller: emailController,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'ایمیل',
                     ),
                   ),
                 ),
@@ -103,7 +130,7 @@ class SignUpPage extends StatelessWidget {
                       ),
                       onPressed: () {
                         //Login screen
-                        Navigator.pushNamed(context, '/LoginPage');
+                        Navigator.pushReplacementNamed(context, '/LoginPage');
                       },
                     ),
                     Text('از قبل حساب کاربری دارید؟'),

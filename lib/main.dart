@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:iotflutterapp/Signup.dart';
+import 'package:http/http.dart' as http;
 
 void main() {
   runApp(MaterialApp(
@@ -19,6 +22,32 @@ class LoginPage extends StatefulWidget {
 class _State extends State<LoginPage> {
   TextEditingController nameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  final String signinAPI = '';
+  Future<Map<String, dynamic>> sigin(String username, String password) async {
+    final Map<String, dynamic> authData = {
+      "username": username,
+      "password": password
+    };
+
+    final http.Response response = await http.post(signinAPI,
+        body: json.encode(authData),
+        headers: {"Content-Type": "application/json"});
+
+    final Map<String, dynamic> authResponseData = json.decode(response.body);
+
+    if (response.statusCode == 400) {
+      if (authResponseData.containsKey("error")) {
+        if (authResponseData["error"] == "invalid_credentials") {
+          return {'success': false, 'message': 'Invalid User!'};
+        }
+      }
+    }
+
+    if (response.statusCode == 200) {
+      return {'success': true, 'message': 'Successfuly login!'};
+    }
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -98,7 +127,7 @@ class _State extends State<LoginPage> {
                       ),
                       onPressed: () {
                         //signup screen
-                        Navigator.pushNamed(context, '/SignUpPage');
+                        Navigator.pushReplacementNamed(context, '/SignUpPage');
                       },
                     ),
                     Text('حساب کاربری ندارید؟'),
