@@ -45,22 +45,35 @@ class _State extends State<MapScreen> {
         ),
       ),
       drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              child: Text('test'),
-              decoration: BoxDecoration(color: Colors.amber),
-            ),
-            ListTile(
-              title: Text('t1'),
-              //Put onTap here
-            ),
-            ListTile(
-              title: Text('t2'),
-              //Put onTap here
-            ),
-          ],
+        child: Flexible(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              DrawerHeader(
+                child: Text('test'),
+                decoration: BoxDecoration(color: Colors.amber),
+              ),
+              ListTile(
+                title: Text('t1'),
+                //Put onTap here
+              ),
+              ListTile(
+                title: Text('t2'),
+                //Put onTap here
+              ),
+              Align(
+                alignment: Alignment.bottomLeft,
+                child: ListTile(
+                  onTap: () {
+                    Navigator.pushReplacementNamed(context, '/SignOut');
+                  },
+                  title: Text('Log Out'),
+                  trailing: Icon(Icons.close),
+                  //Put onTap here
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

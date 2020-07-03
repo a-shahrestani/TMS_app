@@ -119,7 +119,7 @@ packages:
     source: hosted
     version: "3.0.0"
   flutter_map:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: flutter_map
       url: "https://pub.dartlang.org"

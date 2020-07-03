@@ -13,6 +13,7 @@ void main() {
       '/SignUpPage': (context) => SignUpPage(),
       '/LoginPage': (context) => LoginPage(),
       '/MapPage': (context) => MapScreen(),
+      '/SignOut': (context) => LoginPage(),
     },
   ));
 }
@@ -23,10 +24,23 @@ class LoginPage extends StatefulWidget {
 }
 
 class _State extends State<LoginPage> {
-  TextEditingController nameController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
+//  TextEditingController nameController = TextEditingController();
+//  TextEditingController passwordController = TextEditingController();
+  String _user;
+  String _pass;
+  final formKey = GlobalKey<FormState>();
   final String signinAPI = '';
-  Future<Map<String, dynamic>> sigin(String username, String password) async {
+
+  void _login() {
+    if (formKey.currentState.validate()) {
+      formKey.currentState.save();
+      Navigator.pushReplacementNamed(context, '/MapPage');
+//      _sigin(_user, _pass);
+    }
+  }
+
+  // sign in method
+  Future<Map<String, dynamic>> _sigin(String username, String password) async {
     final Map<String, dynamic> authData = {
       "username": username,
       "password": password
@@ -54,91 +68,139 @@ class _State extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: Center(child: Text('سامانه مدیریت چرخ دستی')),
-        ),
-        body: Padding(
-            padding: EdgeInsets.all(10),
-            child: ListView(
-              children: <Widget>[
-                Container(
-                    alignment: Alignment.center,
-                    padding: EdgeInsets.all(10),
-                    child: Text(
-                      'TMS',
-                      style: TextStyle(
-                          color: Colors.blue,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 30),
-                    )),
-                Container(
-                    alignment: Alignment.center,
-                    padding: EdgeInsets.all(10),
-                    child: Text(
-                      'اطلاعات خود را وارد کنید',
-                      style: TextStyle(fontSize: 20),
-                    )),
-                Container(
-                  padding: EdgeInsets.all(10),
-                  child: TextField(
-                    controller: nameController,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'نام کاربری',
+    return SafeArea(
+      child: Scaffold(
+          appBar: AppBar(
+            title: Center(child: Text('سامانه مدیریت چرخ دستی')),
+          ),
+          body: Padding(
+              padding: EdgeInsets.all(10),
+              child: ListView(
+                children: <Widget>[
+                  Container(
+                      alignment: Alignment.center,
+                      padding: EdgeInsets.all(10),
+                      child: Text(
+                        'TMS',
+                        style: TextStyle(
+                            color: Colors.blue,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 30),
+                      )),
+                  Container(
+                      alignment: Alignment.center,
+                      padding: EdgeInsets.all(10),
+                      child: Text(
+                        'اطلاعات خود را وارد کنید',
+                        style: TextStyle(fontSize: 20),
+                      )),
+//                  Container(
+//                    padding: EdgeInsets.all(10),
+//                    child: TextField(
+//                      controller: nameController,
+//                      decoration: InputDecoration(
+//                        border: OutlineInputBorder(),
+//                        labelText: 'نام کاربری',
+//                      ),
+//                    ),
+//                  ),
+//                  Container(
+//                    padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
+//                    child: TextField(
+//                      obscureText: true,
+//                      controller: passwordController,
+//                      decoration: InputDecoration(
+//                        border: OutlineInputBorder(),
+//                        labelText: 'رمز عبور',
+//                      ),
+//                    ),
+//                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Form(
+                      key: formKey,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          TextFormField(
+                            keyboardType: TextInputType.emailAddress,
+                            style: new TextStyle(
+                              fontFamily: "Poppins",
+                            ),
+                            decoration: InputDecoration(
+                                icon: Icon(Icons.email),
+                                labelText: 'ایمیل',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(25.0),
+                                  borderSide: BorderSide(),
+                                )),
+                            validator: (input) => !input.contains('@')
+                                ? 'Not a valid Email'
+                                : null,
+                            onSaved: (input) => _user = input,
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          TextFormField(
+                            obscureText: true,
+                            decoration: InputDecoration(
+                                icon: Icon(Icons.security),
+                                labelText: 'رمز عبور',
+                                border: OutlineInputBorder(
+                                    borderSide: BorderSide(),
+                                    borderRadius: BorderRadius.circular(25.0))),
+                            validator: (input) => input.length < 6
+                                ? 'Password should at least be 6 characters'
+                                : null,
+                            onSaved: (input) => _pass = input,
+                            keyboardType: TextInputType.visiblePassword,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                Container(
-                  padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
-                  child: TextField(
-                    obscureText: true,
-                    controller: passwordController,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'رمز عبور',
-                    ),
+                  FlatButton(
+                    onPressed: () {
+                      //forgot password screen
+                    },
+                    textColor: Colors.blue,
+                    child: Text('رمز عبور را فراموش کرده ام'),
                   ),
-                ),
-                FlatButton(
-                  onPressed: () {
-                    //forgot password screen
-                  },
-                  textColor: Colors.blue,
-                  child: Text('رمز عبور را فراموش کرده ام'),
-                ),
-                Container(
-                    height: 50,
-                    padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
-                    child: RaisedButton(
-                      textColor: Colors.white,
-                      color: Colors.blue,
-                      child: Text('ورود'),
-                      onPressed: () {
+                  Container(
+                      height: 50,
+                      padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                      child: RaisedButton(
+                        textColor: Colors.white,
+                        color: Colors.blue,
+                        child: Text('ورود'),
+                        onPressed: () {
 //                        print(nameController.text);
 //                        print(passwordController.text);
-                        Navigator.pushReplacementNamed(context, '/MapPage');
-                      },
-                    )),
-                Container(
-                    child: Row(
-                  children: <Widget>[
-                    FlatButton(
-                      textColor: Colors.blue,
-                      child: Text(
-                        'ثبت نام',
-                        style: TextStyle(fontSize: 20),
+                          _login();
+                        },
+                      )),
+                  Container(
+                      child: Row(
+                    children: <Widget>[
+                      FlatButton(
+                        textColor: Colors.blue,
+                        child: Text(
+                          'ثبت نام',
+                          style: TextStyle(fontSize: 20),
+                        ),
+                        onPressed: () {
+                          //signup screen
+                          Navigator.pushReplacementNamed(
+                              context, '/SignUpPage');
+                        },
                       ),
-                      onPressed: () {
-                        //signup screen
-                        Navigator.pushReplacementNamed(context, '/SignUpPage');
-                      },
-                    ),
-                    Text('حساب کاربری ندارید؟'),
-                  ],
-                  mainAxisAlignment: MainAxisAlignment.center,
-                ))
-              ],
-            )));
+                      Text('حساب کاربری ندارید؟'),
+                    ],
+                    mainAxisAlignment: MainAxisAlignment.center,
+                  ))
+                ],
+              ))),
+    );
   }
 }
