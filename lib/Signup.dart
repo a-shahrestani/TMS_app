@@ -115,8 +115,8 @@ class SignUpPage extends StatelessWidget {
                       color: Colors.blue,
                       child: Text('ثبت نام'),
                       onPressed: () {
-                        print(nameController.text);
-                        print(passwordController.text);
+//                        print(nameController.text);
+//                        print(passwordController.text);
                       },
                     )),
                 Container(
