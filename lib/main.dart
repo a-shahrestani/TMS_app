@@ -1,15 +1,18 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:iotflutterapp/MapScreen.dart';
 import 'package:iotflutterapp/Signup.dart';
 import 'package:http/http.dart' as http;
 
 void main() {
   runApp(MaterialApp(
+//    theme: ThemeData.dark(),
     home: LoginPage(),
     routes: <String, WidgetBuilder>{
       '/SignUpPage': (context) => SignUpPage(),
       '/LoginPage': (context) => LoginPage(),
+      '/MapPage': (context) => MapScreen(),
     },
   ));
 }
@@ -112,8 +115,9 @@ class _State extends State<LoginPage> {
                       color: Colors.blue,
                       child: Text('ورود'),
                       onPressed: () {
-                        print(nameController.text);
-                        print(passwordController.text);
+//                        print(nameController.text);
+//                        print(passwordController.text);
+                        Navigator.pushReplacementNamed(context, '/MapPage');
                       },
                     )),
                 Container(
