@@ -10,9 +10,7 @@ import 'package:http/http.dart' as http;
 import 'Trolly.dart';
 import 'TrollyMarker.dart';
 
-
 List<Marker> trollyMarkers = [];
-
 
 class MapScreen extends StatefulWidget {
   @override
@@ -23,7 +21,6 @@ class _State extends State<MapScreen> {
 //  List<Marker, Trolly> trollies;
 //  static List<Marker> trollyMarkers = [];
   var rng = new Random();
-
 
   void addTrollyMarker(double lat, double lng) {
     trollyMarkers.add(Marker(

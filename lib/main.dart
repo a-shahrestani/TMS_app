@@ -6,9 +6,6 @@ import 'package:iotflutterapp/MapScreen.dart';
 import 'package:iotflutterapp/Signup.dart';
 import 'package:http/http.dart' as http;
 
-
-
-
 void main() {
   runApp(MaterialApp(
 //    theme: ThemeData.dark(),
