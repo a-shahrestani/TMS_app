@@ -1,9 +1,13 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:iotflutterapp/MapScreen.dart';
 import 'package:iotflutterapp/Signup.dart';
 import 'package:http/http.dart' as http;
+
+
+
 
 void main() {
   runApp(MaterialApp(
@@ -29,18 +33,19 @@ class _State extends State<LoginPage> {
   String _user;
   String _pass;
   final formKey = GlobalKey<FormState>();
-  final String signinAPI = '';
+  final String signinAPI = 'http://185.205.209.236:8000/register/user/';
 
   void _login() {
     if (formKey.currentState.validate()) {
       formKey.currentState.save();
+//      print(_sigin(_user, _pass).toString());
       Navigator.pushReplacementNamed(context, '/MapPage');
-//      _sigin(_user, _pass);
     }
   }
 
   // sign in method
-  Future<Map<String, dynamic>> _sigin(String username, String password) async {
+//  Future<Map<String, dynamic>> _sigin(String username, String password) async
+  Future<bool> _sigin(String username, String password) async {
     final Map<String, dynamic> authData = {
       "username": username,
       "password": password
@@ -50,18 +55,21 @@ class _State extends State<LoginPage> {
         body: json.encode(authData),
         headers: {"Content-Type": "application/json"});
 
-    final Map<String, dynamic> authResponseData = json.decode(response.body);
+//    final Map<String, dynamic> authResponseData = json.decode(response.body);
 
     if (response.statusCode == 400) {
-      if (authResponseData.containsKey("error")) {
-        if (authResponseData["error"] == "invalid_credentials") {
-          return {'success': false, 'message': 'Invalid User!'};
-        }
-      }
+//      if (authResponseData.containsKey("error")) {
+//        if (authResponseData["error"] == "invalid_credentials") {
+////          return {'success': false, 'message': 'Invalid User!'};
+//          return false;
+//        }
+//      }
+      return false;
     }
 
     if (response.statusCode == 200) {
-      return {'success': true, 'message': 'Successfuly login!'};
+      return true;
+//      return {'success': true, 'message': 'Successfuly login!'};
     }
     return null;
   }
@@ -71,7 +79,7 @@ class _State extends State<LoginPage> {
     return SafeArea(
       child: Scaffold(
           appBar: AppBar(
-            title: Center(child: Text('سامانه مدیریت چرخ دستی')),
+            title: Center(child: Text('Trolly Management System')),
           ),
           body: Padding(
               padding: EdgeInsets.all(10),
@@ -91,7 +99,7 @@ class _State extends State<LoginPage> {
                       alignment: Alignment.center,
                       padding: EdgeInsets.all(10),
                       child: Text(
-                        'اطلاعات خود را وارد کنید',
+                        'Enter your info',
                         style: TextStyle(fontSize: 20),
                       )),
 //                  Container(
@@ -129,7 +137,7 @@ class _State extends State<LoginPage> {
                             ),
                             decoration: InputDecoration(
                                 icon: Icon(Icons.email),
-                                labelText: 'ایمیل',
+                                labelText: 'Email',
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(25.0),
                                   borderSide: BorderSide(),
@@ -146,7 +154,7 @@ class _State extends State<LoginPage> {
                             obscureText: true,
                             decoration: InputDecoration(
                                 icon: Icon(Icons.security),
-                                labelText: 'رمز عبور',
+                                labelText: 'Password',
                                 border: OutlineInputBorder(
                                     borderSide: BorderSide(),
                                     borderRadius: BorderRadius.circular(25.0))),
@@ -165,7 +173,7 @@ class _State extends State<LoginPage> {
                       //forgot password screen
                     },
                     textColor: Colors.blue,
-                    child: Text('رمز عبور را فراموش کرده ام'),
+                    child: Text('Forgot Password'),
                   ),
                   Container(
                       height: 50,
@@ -173,7 +181,7 @@ class _State extends State<LoginPage> {
                       child: RaisedButton(
                         textColor: Colors.white,
                         color: Colors.blue,
-                        child: Text('ورود'),
+                        child: Text('Login'),
                         onPressed: () {
 //                        print(nameController.text);
 //                        print(passwordController.text);
@@ -183,10 +191,11 @@ class _State extends State<LoginPage> {
                   Container(
                       child: Row(
                     children: <Widget>[
+                      Text('Don\'t have an account yet? '),
                       FlatButton(
                         textColor: Colors.blue,
                         child: Text(
-                          'ثبت نام',
+                          'Sign Up!',
                           style: TextStyle(fontSize: 20),
                         ),
                         onPressed: () {
@@ -195,7 +204,6 @@ class _State extends State<LoginPage> {
                               context, '/SignUpPage');
                         },
                       ),
-                      Text('حساب کاربری ندارید؟'),
                     ],
                     mainAxisAlignment: MainAxisAlignment.center,
                   ))
