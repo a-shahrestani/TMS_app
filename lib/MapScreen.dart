@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
@@ -21,6 +22,7 @@ class _State extends State<MapScreen> {
 //  List<Marker, Trolly> trollies;
 //  static List<Marker> trollyMarkers = [];
   var rng = new Random();
+  Timer _everySecond;
 
   void addTrollyMarker(double lat, double lng) {
     trollyMarkers.add(Marker(
@@ -28,6 +30,26 @@ class _State extends State<MapScreen> {
         height: 10.0,
         point: LatLng(lat, lng),
         builder: (ctx) => TrollyMarker()));
+  }
+
+  Future<String> getTrolliesData() async {
+    // get trollies form somewhere
+    var response = await http.get(
+        Uri.encodeFull('https://jsonplaceholder.typicode.com/posts'),
+        headers: {'Accept': 'application/json'});
+    print(response.body);
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    _everySecond = Timer.periodic(Duration(seconds: 10), (Timer t) {
+      setState(() {
+        getTrolliesData();
+      });
+    });
   }
 
   @override
