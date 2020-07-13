@@ -1,8 +1,10 @@
 import 'dart:convert';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:iotflutterapp/MapScreen.dart';
+import 'package:iotflutterapp/MapScreen_Customer.dart';
+import 'package:iotflutterapp/MapScreen_Worker.dart';
 import 'package:iotflutterapp/Signup.dart';
 import 'package:http/http.dart' as http;
 
@@ -13,11 +15,14 @@ void main() {
     routes: <String, WidgetBuilder>{
       '/SignUpPage': (context) => SignUpPage(),
       '/LoginPage': (context) => LoginPage(),
-      '/MapPage': (context) => MapScreen(),
+      '/MapPageCustomer': (context) => MapScreenCustomer(),
+      '/MapPageWorker': (context) => MapScreenWorker(),
       '/SignOut': (context) => LoginPage(),
     },
   ));
 }
+
+String _user;
 
 class LoginPage extends StatefulWidget {
   @override
@@ -27,48 +32,56 @@ class LoginPage extends StatefulWidget {
 class _State extends State<LoginPage> {
 //  TextEditingController nameController = TextEditingController();
 //  TextEditingController passwordController = TextEditingController();
-  String _user;
-  String _pass;
-  final formKey = GlobalKey<FormState>();
-  final String signinAPI = 'http://185.205.209.236:8000/register/user/';
 
-  void _login() {
-    if (formKey.currentState.validate()) {
-      formKey.currentState.save();
-//      print(_sigin(_user, _pass).toString());
-      Navigator.pushReplacementNamed(context, '/MapPage');
-    }
-  }
+  String _pass;
+  String _role = 'Customer';
+  Response response;
+  var dio = Dio();
+  final formKey = GlobalKey<FormState>();
+  final String signinAPI = 'http://185.205.209.236:8000/login/';
+
+  void _login() async {}
 
   // sign in method
 //  Future<Map<String, dynamic>> _sigin(String username, String password) async
-  Future<bool> _sigin(String username, String password) async {
+  Future<Map<String, dynamic>> _sigin(
+      String username, String password, String role) async {
+    int roleNum;
+    if (role == 'Customer')
+      roleNum = 1;
+    else
+      roleNum = 2;
     final Map<String, dynamic> authData = {
       "username": username,
-      "password": password
+      "password": password,
+      "user_type": roleNum
     };
 
-    final http.Response response = await http.post(signinAPI,
-        body: json.encode(authData),
-        headers: {"Content-Type": "application/json"});
+//    final http.Response response = await http.post(signinAPI,
+//        body: json.encode(authData),
+//        headers: {"Content-Type": "application/json"});
 
 //    final Map<String, dynamic> authResponseData = json.decode(response.body);
-
-    if (response.statusCode == 400) {
-//      if (authResponseData.containsKey("error")) {
-//        if (authResponseData["error"] == "invalid_credentials") {
-////          return {'success': false, 'message': 'Invalid User!'};
-//          return false;
-//        }
-//      }
-      return false;
-    }
-
-    if (response.statusCode == 200) {
-      return true;
-//      return {'success': true, 'message': 'Successfuly login!'};
-    }
-    return null;
+    FormData formData = new FormData.fromMap(authData);
+    response = await dio.post(signinAPI, data: formData);
+    print(response);
+//    if (response.statusCode == 400) {
+////      if (authResponseData.containsKey("error")) {
+////        if (authResponseData["error"] == "invalid_credentials") {
+//////          return {'success': false, 'message': 'Invalid User!'};
+////          return false;
+////        }
+////      }
+//      print(response.data);
+//      return response.data;
+//    }
+//
+//    if (response.statusCode == 200) {
+//      print(response.data);
+//      return response.data;
+////      return {'success': true, 'message': 'Successfuly login!'};
+//    }
+    return response.data;
   }
 
   @override
@@ -126,6 +139,7 @@ class _State extends State<LoginPage> {
                       key: formKey,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
+//                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: <Widget>[
                           TextFormField(
                             keyboardType: TextInputType.emailAddress,
@@ -133,15 +147,15 @@ class _State extends State<LoginPage> {
                               fontFamily: "Poppins",
                             ),
                             decoration: InputDecoration(
-                                icon: Icon(Icons.email),
-                                labelText: 'Email',
+                                icon: Icon(Icons.perm_identity),
+                                labelText: 'Username',
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(25.0),
                                   borderSide: BorderSide(),
                                 )),
-                            validator: (input) => !input.contains('@')
-                                ? 'Not a valid Email'
-                                : null,
+//                            validator: (input) => !input.contains('@')
+//                                ? 'Not a valid Email'
+//                                : null,
                             onSaved: (input) => _user = input,
                           ),
                           SizedBox(
@@ -161,6 +175,33 @@ class _State extends State<LoginPage> {
                             onSaved: (input) => _pass = input,
                             keyboardType: TextInputType.visiblePassword,
                           ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          DropdownButton<String>(
+                            value: _role,
+                            icon: Icon(Icons.arrow_downward),
+                            iconSize: 24,
+                            elevation: 16,
+                            style: TextStyle(color: Colors.deepPurple),
+                            underline: Container(
+                              height: 2,
+                              color: Colors.blueGrey,
+                            ),
+                            onChanged: (String newValue) {
+                              setState(() {
+                                _role = newValue;
+                              });
+                              print(_role);
+                            },
+                            items: <String>['Customer', 'Worker']
+                                .map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                          ),
                         ],
                       ),
                     ),
@@ -179,10 +220,20 @@ class _State extends State<LoginPage> {
                         textColor: Colors.white,
                         color: Colors.blue,
                         child: Text('Login'),
-                        onPressed: () {
+                        onPressed: () async {
 //                        print(nameController.text);
 //                        print(passwordController.text);
-                          _login();
+                          if (formKey.currentState.validate()) {
+                            formKey.currentState.save();
+                            var temp = (await _sigin(_user, _pass, _role));
+                            if (temp['status'] == 'ok' && _role == 'Customer')
+                              Navigator.pushReplacementNamed(
+                                  context, '/MapPageCustomer');
+                            else if (temp['status'] == 'ok' &&
+                                _role == 'Worker')
+                              Navigator.pushReplacementNamed(
+                                  context, '/MapPageWorker');
+                          }
                         },
                       )),
                   Container(

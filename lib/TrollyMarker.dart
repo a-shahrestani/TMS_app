@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:iotflutterapp/MapScreen.dart';
+import 'package:iotflutterapp/MapScreen_Customer.dart';
+import 'package:iotflutterapp/Trolly.dart';
 
 class TrollyMarker extends StatelessWidget {
 //  int count;
-//  int id;
+  final int id;
+  final Function(int, double, double) onPressTrollyMarker;
   const TrollyMarker({
     Key key,
+    this.id,
+    this.onPressTrollyMarker,
   }) : super(key: key);
 
   @override
@@ -18,8 +22,13 @@ class TrollyMarker extends StatelessWidget {
         color: Colors.green,
         iconSize: 20.0,
         onPressed: () {
-          print('clicked!');
-//          trollyMarkers.removeAt(id);
+          for (Trolly t in trollyMarkers) {
+            if (t.id == this.id) {
+              onPressTrollyMarker(t.id, t.point.latitude, t.point.longitude);
+              print('clicked');
+              break;
+            }
+          }
         },
       ),
     );

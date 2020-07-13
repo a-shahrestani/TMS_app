@@ -4,52 +4,51 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:dio/dio.dart';
 
-class SignUpPage extends StatelessWidget {
+class SignUpPage extends StatefulWidget {
+  @override
+  _State createState() => _State();
+}
+
+class _State extends State<SignUpPage> {
   TextEditingController nameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController numberController = TextEditingController();
   final String signupAPI = 'http://185.205.209.236:8000/register/user/';
+
+//  final String signupAPI = 'https://gorest.co.in/public-api/users?_format=json&access-token=-RcTiY9Qx-uMai_Dyxy72sIqBn4PhrOCxhuZ';
   Response response;
   var dio = Dio();
   String _user;
   String _pass;
   String _email;
+  String _role = 'Customer';
   String _phoneNumber;
   final formKey = GlobalKey<FormState>();
 
 //  Future<Map<String, dynamic>> signup(
-  Future<String> signup(
-      String username, String password, String email, String number) async {
+  Future<Map<String, dynamic>> signup(String username, String password,
+      String email, String number, String role) async {
+    int roleNum;
+    if (role == 'Customer')
+      roleNum = 1;
+    else
+      roleNum = 2;
     final Map<String, dynamic> authData = {
       "username": username,
       "email": email,
+      "user_type": roleNum,
       "phone_number": number,
       "password": password
     };
 
     FormData formData = new FormData.fromMap(authData);
-//    final http.Response response = await http.post(signupAPI,
-//        body: json.encode(authData),
-//        headers: {"Content-Type": "application/json"});
-//
-//    final Map<String, dynamic> authResponseData = json.decode(response.body);
 
     response = await dio.post(signupAPI, data: formData);
+    print(response);
+    print(response.data.runtimeType);
 
-//    if (response.statusCode == 400) {
-////      if (authResponseData.containsKey("error")) {
-////        if (authResponseData["error"] == "invalid_credentials") {
-////          return {'success': false, 'message': 'Invalid User!'};
-////        }
-////      }
-//      return {'success': false, 'message': 'Unsuccessful SignUp!'};
-//    }
-//
-//    if (response.statusCode == 200) {
-//      return {'success': true, 'message': 'Successful SignUp!'};
-//    }
-    return response.data.toString();
+    return response.data;
   }
 
   @override
@@ -153,6 +152,33 @@ class SignUpPage extends StatelessWidget {
                           onSaved: (input) => _phoneNumber = input,
                           keyboardType: TextInputType.visiblePassword,
                         ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        DropdownButton<String>(
+                          value: _role,
+                          icon: Icon(Icons.arrow_downward),
+                          iconSize: 24,
+                          elevation: 16,
+                          style: TextStyle(color: Colors.deepPurple),
+                          underline: Container(
+                            height: 2,
+                            color: Colors.blueGrey,
+                          ),
+                          onChanged: (String newValue) {
+                            setState(() {
+                              _role = newValue;
+                            });
+                            print(_role);
+                          },
+                          items: <String>['Customer', 'Worker']
+                              .map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                        ),
                       ],
                     ),
                   ),
@@ -164,15 +190,27 @@ class SignUpPage extends StatelessWidget {
                       textColor: Colors.white,
                       color: Colors.blue,
                       child: Text('SignUp'),
-                      onPressed: () {
+                      onPressed: () async {
 //                        print(nameController.text);
 //                        print(passwordController.text);
                         if (formKey.currentState.validate()) {
                           formKey.currentState.save();
-                          print(_user + _pass + _email + _phoneNumber);
+                          print(_user +
+                              ' ' +
+                              _pass +
+                              ' ' +
+                              _email +
+                              ' ' +
+                              _phoneNumber);
 //                        print(_sigin(_user, _pass).toString());
-                          print(signup(_user, _pass, _email, _phoneNumber));
-//                          Navigator.pushReplacementNamed(context, '/MapPage');
+                          var temp = (await signup(
+                              _user, _pass, _email, _phoneNumber, _role));
+                          if (temp['status'] == 'ok' && _role == 'Customer')
+                            Navigator.pushReplacementNamed(
+                                context, '/MapPageCustomer');
+                          else if (temp['status'] == 'ok' && _role == 'Worker')
+                            Navigator.pushReplacementNamed(
+                                context, '/MapPageWorker');
                         }
                       },
                     )),

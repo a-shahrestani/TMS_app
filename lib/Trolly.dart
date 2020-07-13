@@ -5,38 +5,47 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:iotflutterapp/TrollyMarker.dart';
 import 'package:latlong/latlong.dart';
 
-class Trolly {
-  TrollyMarker trollyMarker;
-  double _width;
-  double _height;
-  Marker marker;
-  double _lat;
-  double _lng;
-  int id;
-  Color _color = Colors.green;
+//class Trolly extends StatelessWidget {
+//  final double width;
+//  final double height;
+//  final int id;
+//  final double lat;
+//  final double lng;
+//  final Color color;
+//
+//  const Trolly({this.width,this.height,this.id,this.lat,this.lng,this.color});
+//
+//  @override
+//  Widget build(BuildContext context) {
+//    // TODO: implement build
+//    throw UnimplementedError();
+//  }
+//}
 
-  Color getColor() {
-    return _color;
+class Trolly extends Marker {
+  final LatLng point;
+  final WidgetBuilder builder;
+  final double width;
+  final double height;
+  final Anchor anchor;
+  final int id;
+//  final Function(Trolly) onPressTrolly;
+
+  int getID() {
+    return id;
   }
 
-  void updateColor() {
-    _color = Colors.red;
+  LatLng getPoint() {
+    return point;
   }
 
-  double getLat() {
-    return _lat;
-  }
-
-  double getLng() {
-    return _lng;
-  }
-
-  Trolly() {
-    trollyMarker = TrollyMarker();
-    marker = Marker(
-        width: _width,
-        height: _height,
-        point: LatLng(_lat, _lng),
-        builder: (ctx) => trollyMarker);
-  }
+  Trolly({
+    this.point,
+    this.builder,
+    this.width = 30.0,
+    this.height = 30.0,
+    this.id,
+//    this.onPressTrolly,
+    AnchorPos anchorPos,
+  }) : anchor = Anchor.forPos(anchorPos, width, height);
 }
