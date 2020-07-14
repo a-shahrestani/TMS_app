@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -11,6 +12,7 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import 'Trolly.dart';
 import 'TrollyMarker.dart';
+import 'main.dart';
 
 List<Trolly> trollyMarkers = [];
 
@@ -23,6 +25,8 @@ class _State extends State<MapScreenWorker> {
   int chosenTrollyWorkerID = 0;
   double chosenTrollyWorkerLat = 0.0;
   double chosenTrollyWorkerLng = 0.0;
+  String fetchFreeTrolliesAPI =
+      'http://185.205.209.236:8000/trolly/availables/';
   onPressTrolly(int id, double lat, double lng) {
     setState(() {
       chosenTrollyWorkerID = id;
@@ -42,8 +46,9 @@ class _State extends State<MapScreenWorker> {
 //  double chosenTrollyLng;
 //  int chosenTrollyID;
 
-  void addTrollyMarker(int id, double lat, double lng) {
-    trollyMarkers.add(Trolly(
+  List<Trolly> addTrollyMarker(
+      List<Trolly> tempTrollies, int id, double lat, double lng) {
+    tempTrollies.add(Trolly(
         width: 10.0,
         height: 10.0,
         id: id,
@@ -52,14 +57,18 @@ class _State extends State<MapScreenWorker> {
               id: id,
               onPressTrollyMarker: onPressTrolly,
             )));
+    return tempTrollies;
   }
 
-  Future<String> getTrolliesData() async {
+  Future<Map<String, dynamic>> getTrolliesData(String user) async {
+    Response response;
+    Dio dio = Dio();
     // get trollies form somewhere
-    var response = await http.get(
-        Uri.encodeFull('https://jsonplaceholder.typicode.com/posts'),
-        headers: {'Accept': 'application/json'});
-    print(response.body);
+    Map<String, dynamic> authData = {"username": user};
+    FormData formData = new FormData.fromMap(authData);
+    response = await dio.post(fetchFreeTrolliesAPI, data: formData);
+    print(response.data);
+    return response.data;
   }
 
   @override
@@ -67,10 +76,27 @@ class _State extends State<MapScreenWorker> {
     // TODO: implement initState
     super.initState();
 
-    _everySecond = Timer.periodic(Duration(seconds: 10), (Timer t) {
+    _everySecond = Timer.periodic(Duration(seconds: 10), (Timer t) async {
+      var temp = await getTrolliesData(LoginPage.user);
+      print(temp.length);
+
+      List<Trolly> tempTrollies = [];
+      for (int i = 0; i < temp.length; i++) {
+        tempTrollies = addTrollyMarker(tempTrollies, temp[i.toString()]['id'],
+            temp[i.toString()]['x'], temp[i.toString()]['y']);
+//        print(temp[i.toString()]['id'].runtimeType);
+//        print(temp[i.toString()]['x'].runtimeType);
+//        print(temp[i.toString()]['y'].runtimeType);
+      }
+//      for (int j = 0; j < trollyMarkers.length; j++) {
+//        print(trollyMarkers[j].toString());
+//      }
       setState(() {
-        getTrolliesData();
+        trollyMarkers = tempTrollies;
       });
+//      for (int j = 0; j < trollyMarkers.length; j++) {
+//        print(trollyMarkers[j]);
+//      }
     });
   }
 
@@ -129,16 +155,16 @@ class _State extends State<MapScreenWorker> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          setState(() {
-//            double a = rng.nextDouble() * 2 + 50.0;
-//            double b = rng.nextDouble() * 1.0;
-//            addTrollyMarker(rng.nextInt(100), a, b);
-            addTrollyMarker(1, 36.312833, 59.516944);
-          });
-        },
-      ),
+//      floatingActionButton: FloatingActionButton(
+//        onPressed: () {
+//          setState(() {
+////            double a = rng.nextDouble() * 2 + 50.0;
+////            double b = rng.nextDouble() * 1.0;
+////            addTrollyMarker(rng.nextInt(100), a, b);
+//            addTrollyMarker(,1, 36.312833, 59.516944);
+//          });
+//        },
+//      ),
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,

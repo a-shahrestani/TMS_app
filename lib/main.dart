@@ -22,9 +22,8 @@ void main() {
   ));
 }
 
-String _user;
-
 class LoginPage extends StatefulWidget {
+  static String user;
   @override
   _State createState() => _State();
 }
@@ -32,7 +31,7 @@ class LoginPage extends StatefulWidget {
 class _State extends State<LoginPage> {
 //  TextEditingController nameController = TextEditingController();
 //  TextEditingController passwordController = TextEditingController();
-
+  String _user;
   String _pass;
   String _role = 'Customer';
   Response response;
@@ -226,6 +225,7 @@ class _State extends State<LoginPage> {
                           if (formKey.currentState.validate()) {
                             formKey.currentState.save();
                             var temp = (await _sigin(_user, _pass, _role));
+                            LoginPage.user = this._user;
                             if (temp['status'] == 'ok' && _role == 'Customer')
                               Navigator.pushReplacementNamed(
                                   context, '/MapPageCustomer');

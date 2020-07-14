@@ -205,12 +205,9 @@ class _State extends State<SignUpPage> {
 //                        print(_sigin(_user, _pass).toString());
                           var temp = (await signup(
                               _user, _pass, _email, _phoneNumber, _role));
-                          if (temp['status'] == 'ok' && _role == 'Customer')
+                          if (temp['status'] == 'ok')
                             Navigator.pushReplacementNamed(
-                                context, '/MapPageCustomer');
-                          else if (temp['status'] == 'ok' && _role == 'Worker')
-                            Navigator.pushReplacementNamed(
-                                context, '/MapPageWorker');
+                                context, '/LoginPage');
                         }
                       },
                     )),

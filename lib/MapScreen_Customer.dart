@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:async';
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
@@ -12,6 +14,7 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import 'Trolly.dart';
 import 'TrollyMarker.dart';
+import 'main.dart';
 
 List<Trolly> trollyMarkers = [];
 
@@ -21,11 +24,14 @@ class MapScreenCustomer extends StatefulWidget {
 }
 
 class _State extends State<MapScreenCustomer> {
+  Color buttonColor = Colors.green[500];
   int chosenTrollyCustomerID = 0;
   double chosenTrollyCustomerLat = 0.0;
   double chosenTrollyCustomerLng = 0.0;
-  String trollySelectionAPI = '';
-  String releaseTrollyAPI = '';
+  String fetchFreeTrolliesAPI =
+      'http://185.205.209.236:8000/trolly/availables/';
+  String trollySelectionAPI = 'http://185.205.209.236:8000/trolly/occupy/';
+  String releaseTrollyAPI = 'http://185.205.209.236:8000/trolly/free/';
 
   // a state that indicates that customer has chosen a trolly and should now release it
   int _innerState = 0;
@@ -51,8 +57,9 @@ class _State extends State<MapScreenCustomer> {
 //  double chosenTrollyLng;
 //  int chosenTrollyID;
 
-  void addTrollyMarker(int id, double lat, double lng) {
-    trollyMarkers.add(Trolly(
+  List<Trolly> addTrollyMarker(
+      List<Trolly> tempTrollies, int id, double lat, double lng) {
+    tempTrollies.add(Trolly(
         width: 10.0,
         height: 10.0,
         id: id,
@@ -61,14 +68,18 @@ class _State extends State<MapScreenCustomer> {
               id: id,
               onPressTrollyMarker: onPressTrolly,
             )));
+    return tempTrollies;
   }
 
-  Future<String> getTrolliesData() async {
+  Future<Map<String, dynamic>> getTrolliesData(String user) async {
+    Response response;
+    Dio dio = Dio();
     // get trollies form somewhere
-    var response = await http.get(
-        Uri.encodeFull('https://jsonplaceholder.typicode.com/posts'),
-        headers: {'Accept': 'application/json'});
-    print(response.body);
+    Map<String, dynamic> authData = {"username": user};
+    FormData formData = new FormData.fromMap(authData);
+    response = await dio.post(fetchFreeTrolliesAPI, data: formData);
+    print(response.data);
+    return response.data;
   }
 
   @override
@@ -76,10 +87,31 @@ class _State extends State<MapScreenCustomer> {
     // TODO: implement initState
     super.initState();
 
-    _everySecond = Timer.periodic(Duration(seconds: 10), (Timer t) {
+    _everySecond = Timer.periodic(Duration(seconds: 10), (Timer t) async {
+      var temp = await getTrolliesData(LoginPage.user);
+      print(temp.length);
+
+      List<Trolly> tempTrollies = [];
+      for (int i = 0; i < temp.length; i++) {
+        if (temp[i.toString()] != null) {
+          tempTrollies = addTrollyMarker(tempTrollies, temp[i.toString()]['id'],
+              temp[i.toString()]['x'], temp[i.toString()]['y']);
+        } else
+          tempTrollies = addTrollyMarker(
+              tempTrollies, temp[i]['id'], temp[i]['x'], temp[i]['y']);
+//        print(temp[i.toString()]['id'].runtimeType);
+//        print(temp[i.toString()]['x'].runtimeType);
+//        print(temp[i.toString()]['y'].runtimeType);
+      }
+//      for (int j = 0; j < trollyMarkers.length; j++) {
+//        print(trollyMarkers[j].toString());
+//      }
       setState(() {
-        getTrolliesData();
+        trollyMarkers = tempTrollies;
       });
+//      for (int j = 0; j < trollyMarkers.length; j++) {
+//        print(trollyMarkers[j]);
+//      }
     });
   }
 
@@ -87,7 +119,7 @@ class _State extends State<MapScreenCustomer> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Center(child: Text('سامانه مدیریت چرخ دستی')),
+        title: Center(child: Text('Trolly Management System')),
       ),
       body: SlidingUpPanel(
         collapsed: Center(child: Text('Select a trolly')),
@@ -117,19 +149,26 @@ class _State extends State<MapScreenCustomer> {
                 ],
               ),
               FlatButton(
-                color: Colors.green[500],
+                color: buttonColor,
                 child: Center(child: Text('$trollyButtonText')),
-                onPressed: () {
+                onPressed: () async {
                   if (_innerState == 0) {
-                    setState(() {
-                      trollyButtonText = 'Release Trolly';
-                      _innerState = 1;
-                    });
+                    var temp = await selectTrolly(
+                        LoginPage.user, chosenTrollyCustomerID);
+                    if (temp['status'] == 'ok')
+                      setState(() {
+                        trollyButtonText = 'Release Trolly';
+                        buttonColor = Colors.red[500];
+                        _innerState = 1;
+                      });
                   } else {
-                    setState(() {
-                      trollyButtonText = 'Choose Trolly';
-                      _innerState = 0;
-                    });
+                    var temp = await releaseTrolly(chosenTrollyCustomerID);
+                    if (temp['status'] == 'ok')
+                      setState(() {
+                        trollyButtonText = 'Choose Trolly';
+                        buttonColor = Colors.green[500];
+                        _innerState = 0;
+                      });
                   }
                 },
               ),
@@ -155,16 +194,16 @@ class _State extends State<MapScreenCustomer> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          setState(() {
-//            double a = rng.nextDouble() * 2 + 50.0;
-//            double b = rng.nextDouble() * 1.0;
-//            addTrollyMarker(rng.nextInt(100), a, b);
-            addTrollyMarker(1, 36.312833, 59.516944);
-          });
-        },
-      ),
+//      floatingActionButton: FloatingActionButton(
+//        onPressed: () {
+//          setState(() {
+////            double a = rng.nextDouble() * 2 + 50.0;
+////            double b = rng.nextDouble() * 1.0;
+////            addTrollyMarker(rng.nextInt(100), a, b);
+//            addTrollyMarker(1, 36.312833, 59.516944);
+//          });
+//        },
+//      ),
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
@@ -203,19 +242,19 @@ class _State extends State<MapScreenCustomer> {
   Future<Map<String, dynamic>> selectTrolly(String user, int id) async {
     Response response;
     Dio dio = Dio();
-    final Map<String, dynamic> authData = {"username": user, "id": id};
+    final Map<String, dynamic> authData = {"username": user, "trolly_id": id};
     FormData formData = new FormData.fromMap(authData);
     response = await dio.post(trollySelectionAPI, data: formData);
     print(response.data);
     return response.data;
   }
 
-  Future<Map<String, dynamic>> releaseTrolly(String user, int id) async {
+  Future<Map<String, dynamic>> releaseTrolly(int id) async {
     Response response;
     Dio dio = Dio();
-    final Map<String, dynamic> authData = {"username": user, "id": id};
+    final Map<String, dynamic> authData = {"trolly_id": id};
     FormData formData = new FormData.fromMap(authData);
-    response = await dio.post(trollySelectionAPI, data: formData);
+    response = await dio.post(releaseTrollyAPI, data: formData);
     print(response.data);
     return response.data;
   }
