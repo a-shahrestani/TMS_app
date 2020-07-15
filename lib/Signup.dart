@@ -55,7 +55,7 @@ class _State extends State<SignUpPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Center(child: Text('Trolly Management System')),
+          title: Center(child: Text('Trolley Management System')),
         ),
         body: Padding(
             padding: EdgeInsets.all(10),
@@ -90,14 +90,16 @@ class _State extends State<SignUpPage> {
                             fontFamily: "Poppins",
                           ),
                           decoration: InputDecoration(
-                              icon: Icon(Icons.perm_identity),
-                              labelText: 'User',
+                              prefixIcon: Icon(Icons.perm_identity),
+                              labelText: 'Username',
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(25.0),
                                 borderSide: BorderSide(),
                               )),
-//                          validator: (input) =>
-//                              !input.contains('@') ? 'Not a valid Email' : null,
+                          validator: (input) =>
+                              input.startsWith(RegExp('[^a-zA-Z]'))
+                                  ? 'Username must start with a character'
+                                  : null,
                           onSaved: (input) => _user = input,
                         ),
                         SizedBox(
@@ -106,8 +108,9 @@ class _State extends State<SignUpPage> {
                         TextFormField(
                           obscureText: true,
                           decoration: InputDecoration(
-                              icon: Icon(Icons.security),
+                              prefixIcon: Icon(Icons.security),
                               labelText: 'Password',
+                              hintText: 'Must be at least 6 characters',
                               border: OutlineInputBorder(
                                   borderSide: BorderSide(),
                                   borderRadius: BorderRadius.circular(25.0))),
@@ -126,7 +129,8 @@ class _State extends State<SignUpPage> {
                             fontFamily: "Poppins",
                           ),
                           decoration: InputDecoration(
-                              icon: Icon(Icons.email),
+                              prefixIcon: Icon(Icons.email),
+                              hintText: 'hint@mail.com',
                               labelText: 'Email',
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(25.0),
@@ -140,44 +144,48 @@ class _State extends State<SignUpPage> {
                           height: 10,
                         ),
                         TextFormField(
+                          keyboardType: TextInputType.number,
                           decoration: InputDecoration(
-                              icon: Icon(Icons.phone),
+                              hintText: '09*********',
+                              prefixIcon: Icon(Icons.phone),
                               labelText: 'Phone Number',
                               border: OutlineInputBorder(
                                   borderSide: BorderSide(),
                                   borderRadius: BorderRadius.circular(25.0))),
-//                          validator: (input) => input.length < 6
-//                              ? 'Password should at least be 6 characters'
-//                              : null,
+                          validator: (input) => input.isEmpty
+                              ? 'Phone number can\'t be empty'
+                              : null,
                           onSaved: (input) => _phoneNumber = input,
-                          keyboardType: TextInputType.visiblePassword,
                         ),
                         SizedBox(
                           height: 10,
                         ),
-                        DropdownButton<String>(
-                          value: _role,
-                          icon: Icon(Icons.arrow_downward),
-                          iconSize: 24,
-                          elevation: 16,
-                          style: TextStyle(color: Colors.deepPurple),
-                          underline: Container(
-                            height: 2,
-                            color: Colors.blueGrey,
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 10.0),
+                          child: DropdownButton<String>(
+                            value: _role,
+                            icon: Icon(Icons.arrow_downward),
+                            iconSize: 24,
+                            elevation: 16,
+                            style: TextStyle(color: Colors.blueGrey),
+                            underline: Container(
+                              height: 2,
+                              color: Colors.blueGrey,
+                            ),
+                            onChanged: (String newValue) {
+                              setState(() {
+                                _role = newValue;
+                              });
+                              print(_role);
+                            },
+                            items: <String>['Customer', 'Worker']
+                                .map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
                           ),
-                          onChanged: (String newValue) {
-                            setState(() {
-                              _role = newValue;
-                            });
-                            print(_role);
-                          },
-                          items: <String>['Customer', 'Worker']
-                              .map<DropdownMenuItem<String>>((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
                         ),
                       ],
                     ),
@@ -185,7 +193,7 @@ class _State extends State<SignUpPage> {
                 ),
                 Container(
                     height: 50,
-                    padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                    padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
                     child: RaisedButton(
                       textColor: Colors.white,
                       color: Colors.blue,
@@ -205,22 +213,22 @@ class _State extends State<SignUpPage> {
 //                        print(_sigin(_user, _pass).toString());
                           var temp = (await signup(
                               _user, _pass, _email, _phoneNumber, _role));
-                          if (temp['status'] == 'ok' && _role == 'Customer')
+                          if (temp['status'] == 'ok')
                             Navigator.pushReplacementNamed(
-                                context, '/MapPageCustomer');
-                          else if (temp['status'] == 'ok' && _role == 'Worker')
-                            Navigator.pushReplacementNamed(
-                                context, '/MapPageWorker');
+                                context, '/LoginPage');
+                          else
+                            showAlertDialog(context, temp['message']);
                         }
                       },
                     )),
                 Container(
                     child: Row(
                   children: <Widget>[
+                    Text('Do you have an account?'),
                     FlatButton(
                       textColor: Colors.blue,
                       child: Text(
-                        'Login',
+                        'Login!',
                         style: TextStyle(fontSize: 20),
                       ),
                       onPressed: () {
@@ -228,11 +236,37 @@ class _State extends State<SignUpPage> {
                         Navigator.pushReplacementNamed(context, '/LoginPage');
                       },
                     ),
-                    Text('Do you have an account?'),
                   ],
                   mainAxisAlignment: MainAxisAlignment.center,
                 )),
               ],
             )));
+  }
+
+  showAlertDialog(BuildContext context, String error) {
+    // set up the buttons
+    Widget continueButton = FlatButton(
+      child: Text("Continue"),
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text("Something went wrong!"),
+      content: Text(error),
+      actions: [
+        continueButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
   }
 }

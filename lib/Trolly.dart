@@ -48,4 +48,20 @@ class Trolly extends Marker {
 //    this.onPressTrolly,
     AnchorPos anchorPos,
   }) : anchor = Anchor.forPos(anchorPos, width, height);
+
+  @override
+  String toString() {
+    // TODO: implement toString
+    String s = '';
+    s = this.height.toString() +
+        ' ' +
+        this.height.toString() +
+        ' ' +
+        this.width.toString() +
+        ' ' +
+        this.id.toString() +
+        ' ' +
+        this.point.toString();
+    return s;
+  }
 }
