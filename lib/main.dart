@@ -88,7 +88,7 @@ class _State extends State<LoginPage> {
     return SafeArea(
       child: Scaffold(
           appBar: AppBar(
-            title: Center(child: Text('Trolly Management System')),
+            title: Center(child: Text('Trolley Management System')),
           ),
           body: Padding(
               padding: EdgeInsets.all(10),
@@ -146,15 +146,16 @@ class _State extends State<LoginPage> {
                               fontFamily: "Poppins",
                             ),
                             decoration: InputDecoration(
-                                icon: Icon(Icons.perm_identity),
+//                                icon: Icon(Icons.perm_identity),
+                                prefixIcon: Icon(Icons.perm_identity),
                                 labelText: 'Username',
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(25.0),
                                   borderSide: BorderSide(),
                                 )),
-//                            validator: (input) => !input.contains('@')
-//                                ? 'Not a valid Email'
-//                                : null,
+                            validator: (input) => input.isEmpty
+                                ? 'Password can\'t be empty'
+                                : null,
                             onSaved: (input) => _user = input,
                           ),
                           SizedBox(
@@ -163,13 +164,14 @@ class _State extends State<LoginPage> {
                           TextFormField(
                             obscureText: true,
                             decoration: InputDecoration(
-                                icon: Icon(Icons.security),
+                                prefixIcon: Icon(Icons.security),
+//                                icon: Icon(Icons.security),
                                 labelText: 'Password',
                                 border: OutlineInputBorder(
                                     borderSide: BorderSide(),
                                     borderRadius: BorderRadius.circular(25.0))),
-                            validator: (input) => input.length < 6
-                                ? 'Password should at least be 6 characters'
+                            validator: (input) => input.isEmpty
+                                ? 'Password can\'t be empty'
                                 : null,
                             onSaved: (input) => _pass = input,
                             keyboardType: TextInputType.visiblePassword,
@@ -177,29 +179,34 @@ class _State extends State<LoginPage> {
                           SizedBox(
                             height: 10,
                           ),
-                          DropdownButton<String>(
-                            value: _role,
-                            icon: Icon(Icons.arrow_downward),
-                            iconSize: 24,
-                            elevation: 16,
-                            style: TextStyle(color: Colors.deepPurple),
-                            underline: Container(
-                              height: 2,
-                              color: Colors.blueGrey,
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 10.0),
+                            child: DropdownButton<String>(
+                              value: _role,
+                              icon: Icon(Icons.arrow_downward),
+                              iconSize: 24,
+                              elevation: 16,
+                              style: TextStyle(color: Colors.blueGrey),
+                              underline: Container(
+                                height: 2,
+                                color: Colors.blueGrey,
+                              ),
+                              onChanged: (String newValue) {
+                                setState(() {
+                                  _role = newValue;
+                                });
+                                print(_role);
+                              },
+                              items: <String>[
+                                'Customer',
+                                'Worker'
+                              ].map<DropdownMenuItem<String>>((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
                             ),
-                            onChanged: (String newValue) {
-                              setState(() {
-                                _role = newValue;
-                              });
-                              print(_role);
-                            },
-                            items: <String>['Customer', 'Worker']
-                                .map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
                           ),
                         ],
                       ),
@@ -233,6 +240,8 @@ class _State extends State<LoginPage> {
                                 _role == 'Worker')
                               Navigator.pushReplacementNamed(
                                   context, '/MapPageWorker');
+                            else
+                              showAlertDialog(context, temp['message']);
                           }
                         },
                       )),
@@ -257,6 +266,33 @@ class _State extends State<LoginPage> {
                   ))
                 ],
               ))),
+    );
+  }
+
+  showAlertDialog(BuildContext context, String error) {
+    // set up the buttons
+    Widget continueButton = FlatButton(
+      child: Text("Continue"),
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text("Something went wrong!"),
+      content: Text(error),
+      actions: [
+        continueButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
     );
   }
 }

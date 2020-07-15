@@ -35,7 +35,7 @@ class _State extends State<MapScreenCustomer> {
 
   // a state that indicates that customer has chosen a trolly and should now release it
   int _innerState = 0;
-  String trollyButtonText = 'Choose Trolly';
+  String trollyButtonText = 'Choose Trolley';
 
   onPressTrolly(int id, double lat, double lng) {
     setState(() {
@@ -60,8 +60,8 @@ class _State extends State<MapScreenCustomer> {
   List<Trolly> addTrollyMarker(
       List<Trolly> tempTrollies, int id, double lat, double lng) {
     tempTrollies.add(Trolly(
-        width: 10.0,
-        height: 10.0,
+        width: 20.0,
+        height: 20.0,
         id: id,
         point: LatLng(lat, lng),
         builder: (ctx) => TrollyMarker(
@@ -109,9 +109,10 @@ class _State extends State<MapScreenCustomer> {
       setState(() {
         trollyMarkers = tempTrollies;
       });
-//      for (int j = 0; j < trollyMarkers.length; j++) {
-//        print(trollyMarkers[j]);
-//      }
+      print(trollyMarkers.length);
+      for (int j = 0; j < trollyMarkers.length; j++) {
+        print(trollyMarkers[j]);
+      }
     });
   }
 
@@ -122,7 +123,7 @@ class _State extends State<MapScreenCustomer> {
         title: Center(child: Text('Trolly Management System')),
       ),
       body: SlidingUpPanel(
-        collapsed: Center(child: Text('Select a trolly')),
+        collapsed: Center(child: Text('Select a trolley')),
         minHeight: 20.0,
         controller: p1,
         borderRadius: BorderRadius.only(
@@ -138,14 +139,16 @@ class _State extends State<MapScreenCustomer> {
                 height: 10.0,
               ),
               Center(
-                child: Text('$chosenTrollyCustomerID'),
+                child: Text('TrolleyID : $chosenTrollyCustomerID'),
               ),
               Row(
                 children: <Widget>[
                   Expanded(
-                      child: Center(child: Text('$chosenTrollyCustomerLat'))),
+                      child: Center(
+                          child: Text('Lat : $chosenTrollyCustomerLat'))),
                   Expanded(
-                      child: Center(child: Text('$chosenTrollyCustomerLng'))),
+                      child: Center(
+                          child: Text('Lng : $chosenTrollyCustomerLng'))),
                 ],
               ),
               FlatButton(
@@ -153,19 +156,19 @@ class _State extends State<MapScreenCustomer> {
                 child: Center(child: Text('$trollyButtonText')),
                 onPressed: () async {
                   if (_innerState == 0) {
-                    var temp = await selectTrolly(
+                    var temp = await selectTrolley(
                         LoginPage.user, chosenTrollyCustomerID);
                     if (temp['status'] == 'ok')
                       setState(() {
-                        trollyButtonText = 'Release Trolly';
+                        trollyButtonText = 'Release Trolley';
                         buttonColor = Colors.red[500];
                         _innerState = 1;
                       });
                   } else {
-                    var temp = await releaseTrolly(chosenTrollyCustomerID);
+                    var temp = await releaseTrolley(chosenTrollyCustomerID);
                     if (temp['status'] == 'ok')
                       setState(() {
-                        trollyButtonText = 'Choose Trolly';
+                        trollyButtonText = 'Choose Trolley';
                         buttonColor = Colors.green[500];
                         _innerState = 0;
                       });
@@ -180,7 +183,7 @@ class _State extends State<MapScreenCustomer> {
             options: new MapOptions(
                 center: new LatLng(36.312833, 59.516944),
                 zoom: 18.0,
-                maxZoom: 18.5),
+                maxZoom: 18.0),
             layers: [
               new TileLayerOptions(
                   urlTemplate:
@@ -209,16 +212,8 @@ class _State extends State<MapScreenCustomer> {
           padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
-              child: Text('test'),
-              decoration: BoxDecoration(color: Colors.amber),
-            ),
-            ListTile(
-              title: Text('t1'),
-              //Put onTap here
-            ),
-            ListTile(
-              title: Text('t2'),
-              //Put onTap here
+              child: Text('Menu'),
+              decoration: BoxDecoration(color: Colors.blueGrey),
             ),
             Align(
               alignment: Alignment.bottomLeft,
@@ -239,7 +234,7 @@ class _State extends State<MapScreenCustomer> {
     );
   }
 
-  Future<Map<String, dynamic>> selectTrolly(String user, int id) async {
+  Future<Map<String, dynamic>> selectTrolley(String user, int id) async {
     Response response;
     Dio dio = Dio();
     final Map<String, dynamic> authData = {"username": user, "trolly_id": id};
@@ -249,7 +244,7 @@ class _State extends State<MapScreenCustomer> {
     return response.data;
   }
 
-  Future<Map<String, dynamic>> releaseTrolly(int id) async {
+  Future<Map<String, dynamic>> releaseTrolley(int id) async {
     Response response;
     Dio dio = Dio();
     final Map<String, dynamic> authData = {"trolly_id": id};

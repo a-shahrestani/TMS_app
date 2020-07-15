@@ -104,10 +104,10 @@ class _State extends State<MapScreenWorker> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Center(child: Text('سامانه مدیریت چرخ دستی')),
+        title: Center(child: Text('Trolley Management System')),
       ),
       body: SlidingUpPanel(
-        collapsed: Center(child: Text('Select a trolly')),
+        collapsed: Center(child: Text('Select a trolley')),
         minHeight: 20.0,
         controller: p1,
         borderRadius: BorderRadius.only(
@@ -170,16 +170,8 @@ class _State extends State<MapScreenWorker> {
           padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
-              child: Text('test'),
+              child: Text('Menu'),
               decoration: BoxDecoration(color: Colors.amber),
-            ),
-            ListTile(
-              title: Text('t1'),
-              //Put onTap here
-            ),
-            ListTile(
-              title: Text('t2'),
-              //Put onTap here
             ),
             Align(
               alignment: Alignment.bottomLeft,
